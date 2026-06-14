@@ -1,0 +1,78 @@
+# ===== Backend (Java / Maven) =====
+target/
+*.class
+*.jar
+*.war
+!backend/**/*.jar.example
+*.iml
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+hs_err_pid*.log
+
+# ===== Frontend (Node) =====
+node_modules/
+dist/
+.DS_Store
+*.local
+.eslintcache
+.npm/
+.pnpm-debug.log*
+.yarn/
+
+# ===== Logs =====
+*.log
+logs/
+*.log.*
+
+# ===== Env / Secrets =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+id_rsa*
+
+# ===== Docker 运行数据 =====
+docker/data/
+docker/logs/
+docker/nginx/logs/
+
+# ===== Unity =====
+unity-display/Library/
+unity-display/Temp/
+unity-display/Obj/
+unity-display/Logs/
+unity-display/UserSettings/
+unity-display/Build/
+unity-display/Builds/
+unity-display/MemoryCaptures/
+unity-display/Recordings/
+*.csproj
+*.sln
+*.unityproj
+*.tmp
+*.user
+*.suo
+*.userprefs
+
+# 虹软 ArcFace 离线授权（机器绑定，不应进版本库）
+**/ArcFace/license*
+**/ArcFace/active*
+
+# ===== Claude Code / IDE 本地配置 =====
+.claude/
+!.claude/commands/
+
+# ===== OS =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

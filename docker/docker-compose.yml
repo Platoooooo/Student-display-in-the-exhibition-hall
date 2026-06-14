@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # ============= MySQL =============
+  mysql:
+    image: mysql:8.0
+    container_name: exhibition-mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: exhibition_db
+      TZ: Asia/Shanghai
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_allowed_packet=64M
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - exhibition-net
+
+  # ============= Redis =============
+  redis:
+    image: redis:7-alpine
+    container_name: exhibition-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis123456 --appendonly yes
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - exhibition-net
+
+  # ============= MinIO =============
+  minio:
+    image: minio/minio:latest
+    container_name: exhibition-minio
+    restart: always
+    ports:
+      - "9000:9000"     # API
+      - "9001:9001"     # 控制台
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minio123456
+    command: server /data --console-address ":9001"
+    volumes:
+      - ./data/minio:/data
+    networks:
+      - exhibition-net
+
+  # ============= 后端服务 =============
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: exhibition-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+      - minio
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/exhibition_db?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: redis123456
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESSKEY: minioadmin
+      MINIO_SECRETKEY: minio123456
+      MINIO_BUCKET: exhibition
+      TZ: Asia/Shanghai
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - exhibition-net
+
+  # ============= Nginx（管理后台 + H5 静态托管 + 反代） =============
+  nginx:
+    image: nginx:alpine
+    container_name: exhibition-nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html/admin:/usr/share/nginx/html/admin:ro
+      - ./nginx/html/student:/usr/share/nginx/html/student:ro
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - exhibition-net
+
+networks:
+  exhibition-net:
+    driver: bridge
