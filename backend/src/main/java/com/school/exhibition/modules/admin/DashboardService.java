@@ -8,7 +8,6 @@ import com.school.exhibition.modules.face.mapper.RecognizeLogMapper;
 import com.school.exhibition.modules.profile.ProfileService;
 import com.school.exhibition.modules.profile.entity.AlumniProfile;
 import com.school.exhibition.modules.profile.mapper.AlumniProfileMapper;
-import com.school.exhibition.modules.user.entity.SysUser;
 import com.school.exhibition.modules.user.mapper.SysUserMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,32 +47,36 @@ public class DashboardService {
                 Wrappers.<RecognizeLog>lambdaQuery().ge(RecognizeLog::getCreatedAt,
                         LocalDateTime.now().withHour(0).withMinute(0).withSecond(0))));
 
-        // 按学院统计已发布资料数
+        // 按学院统计：单条 SQL 聚合 + 一次学院列表查询
         List<College> colleges = collegeMapper.selectList(
                 Wrappers.<College>lambdaQuery().orderByAsc(College::getSortOrder));
-        Map<Long, Long> userCollegeMap = new HashMap<>();
-        userMapper.selectList(null).forEach(u -> userCollegeMap.put(u.getId(), u.getCollegeId()));
-        List<AlumniProfile> publishedList = profileMapper.selectList(
-                Wrappers.<AlumniProfile>lambdaQuery()
-                        .eq(AlumniProfile::getStatus, ProfileService.STATUS_PUBLISHED));
-
+        Map<Long, Long> collegeCountMap = new LinkedHashMap<>();
+        for (Map<String, Object> row : profileMapper.countPublishedByCollege()) {
+            Object cid = row.get("collegeId");
+            Object total = row.get("total");
+            if (cid != null && total != null) {
+                collegeCountMap.put(((Number) cid).longValue(), ((Number) total).longValue());
+            }
+        }
         Map<String, Long> byCollege = new LinkedHashMap<>();
         for (College c : colleges) {
-            long count = publishedList.stream().filter(p -> {
-                Long cid = userCollegeMap.get(p.getUserId());
-                return cid != null && cid.equals(c.getId());
-            }).count();
-            byCollege.put(c.getName(), count);
+            byCollege.put(c.getName(), collegeCountMap.getOrDefault(c.getId(), 0L));
         }
         s.setByCollege(byCollege);
 
-        // 按类目统计
+        // 按类目统计：单条 SQL 聚合
         String[] catNames = {"", "荣誉", "作品", "成绩", "活动", "其他"};
+        Map<Integer, Long> catCountMap = new LinkedHashMap<>();
+        for (Map<String, Object> row : profileMapper.countPublishedByCategory()) {
+            Object cat = row.get("category");
+            Object total = row.get("total");
+            if (cat != null && total != null) {
+                catCountMap.put(((Number) cat).intValue(), ((Number) total).longValue());
+            }
+        }
         Map<String, Long> byCategory = new LinkedHashMap<>();
         for (int i = 1; i <= 5; i++) {
-            final int code = i;
-            byCategory.put(catNames[i], publishedList.stream()
-                    .filter(p -> p.getCategory() != null && p.getCategory() == code).count());
+            byCategory.put(catNames[i], catCountMap.getOrDefault(i, 0L));
         }
         s.setByCategory(byCategory);
 

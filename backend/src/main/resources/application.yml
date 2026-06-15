@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: /
 
@@ -8,18 +8,18 @@ spring:
     name: exhibition-backend
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/exhibition_db?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
-    username: root
-    password: root
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:exhibition_db}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 20
 
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: redis123456
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:redis123456}
       timeout: 3000ms
       lettuce:
         pool:
@@ -36,21 +36,17 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  global-config:
-    db-config:
-      logic-delete-field: deleted
-      logic-delete-value: 1
-      logic-not-delete-value: 0
+  # 项目暂未使用逻辑删除（表无 deleted 列），保留默认即可，避免 MP 隐式注入 WHERE deleted = 0
 
 minio:
-  endpoint: http://localhost:9000
-  accessKey: minioadmin
-  secretKey: minio123456
-  bucket: exhibition
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  accessKey: ${MINIO_ACCESS_KEY:minioadmin}
+  secretKey: ${MINIO_SECRET_KEY:minio123456}
+  bucket: ${MINIO_BUCKET:exhibition}
 
 face:
   match:
-    threshold: 0.82
+    threshold: ${FACE_THRESHOLD:0.82}
   detect:
     interval: 500
 
@@ -68,6 +64,6 @@ sa-token:
 
 logging:
   level:
-    com.school.exhibition: debug
+    com.school.exhibition: ${LOG_LEVEL:debug}
   file:
     path: ./logs

@@ -7,10 +7,10 @@ services:
     container_name: exhibition-mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: exhibition_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DB:-exhibition_db}
       TZ: Asia/Shanghai
     command:
       --default-authentication-plugin=mysql_native_password
@@ -20,6 +20,11 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - exhibition-net
 
@@ -29,10 +34,15 @@ services:
     container_name: exhibition-redis
     restart: always
     ports:
-      - "6379:6379"
-    command: redis-server --requirepass redis123456 --appendonly yes
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis123456} --appendonly yes
     volumes:
       - ./data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis123456}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - exhibition-net
 
@@ -42,14 +52,19 @@ services:
     container_name: exhibition-minio
     restart: always
     ports:
-      - "9000:9000"     # API
-      - "9001:9001"     # 控制台
+      - "${MINIO_API_PORT:-9000}:9000"     # API
+      - "${MINIO_CONSOLE_PORT:-9001}:9001" # 控制台
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minio123456
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minio123456}
     command: server /data --console-address ":9001"
     volumes:
       - ./data/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
     networks:
       - exhibition-net
 
@@ -61,23 +76,29 @@ services:
     container_name: exhibition-backend
     restart: always
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
-      - mysql
-      - redis
-      - minio
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/exhibition_db?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      SPRING_REDIS_PASSWORD: redis123456
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DB: ${MYSQL_DB:-exhibition_db}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123456}
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESSKEY: minioadmin
-      MINIO_SECRETKEY: minio123456
-      MINIO_BUCKET: exhibition
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123456}
+      MINIO_BUCKET: ${MINIO_BUCKET:-exhibition}
+      FACE_THRESHOLD: ${FACE_THRESHOLD:-0.82}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       TZ: Asia/Shanghai
     volumes:
       - ./logs:/app/logs
@@ -90,7 +111,7 @@ services:
     container_name: exhibition-nginx
     restart: always
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-80}:80"
     depends_on:
       - backend
     volumes:

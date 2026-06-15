@@ -82,11 +82,19 @@ public class AuditService {
             if (p.getStatus() != ProfileService.STATUS_COLLEGE_AUDIT)
                 throw new BusinessException("非院级审核中");
             level = 1;
-        } else if (me.getRole() == Roles.ACADEMIC_AUDITOR || me.getRole() == Roles.SUPER_ADMIN) {
-            if (p.getStatus() != ProfileService.STATUS_ACADEMIC_AUDIT
-                    && me.getRole() != Roles.SUPER_ADMIN)
+        } else if (me.getRole() == Roles.ACADEMIC_AUDITOR) {
+            if (p.getStatus() != ProfileService.STATUS_ACADEMIC_AUDIT)
                 throw new BusinessException("非教务审核中");
             level = 2;
+        } else if (me.getRole() == Roles.SUPER_ADMIN) {
+            // 校管可同时审 院级/教务，按当前资料状态决定等级
+            if (p.getStatus() == ProfileService.STATUS_COLLEGE_AUDIT) {
+                level = 1;
+            } else if (p.getStatus() == ProfileService.STATUS_ACADEMIC_AUDIT) {
+                level = 2;
+            } else {
+                throw new BusinessException("非审核中状态");
+            }
         } else {
             throw new BusinessException("无审核权限");
         }
