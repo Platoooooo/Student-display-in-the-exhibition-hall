@@ -64,11 +64,12 @@
             <version>8.5.9</version>
         </dependency>
 
-        <!-- Flowable 工作流（可选） -->
+        <!-- Flowable 工作流（预留，暂未启用流程定义） -->
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter</artifactId>
             <version>7.0.1</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- Lombok -->

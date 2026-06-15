@@ -35,7 +35,7 @@ mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
   # 项目暂未使用逻辑删除（表无 deleted 列），保留默认即可，避免 MP 隐式注入 WHERE deleted = 0
 
 minio:
