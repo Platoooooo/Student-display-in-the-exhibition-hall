@@ -14,6 +14,7 @@
             <van-radio :name="2">作品</van-radio>
             <van-radio :name="3">成绩</van-radio>
             <van-radio :name="4">活动</van-radio>
+            <van-radio :name="5">其他</van-radio>
           </van-radio-group>
         </template>
       </van-field>

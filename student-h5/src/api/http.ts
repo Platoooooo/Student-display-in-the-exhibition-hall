@@ -14,7 +14,7 @@ http.interceptors.response.use(
     const r = resp.data
     if (r && typeof r === 'object' && 'code' in r) {
       if (r.code === 200) return r.data
-      if (r.code === 401) { useUserStore().logout(); router.push('/login') }
+      if (r.code === 401) { showToast('登录已失效，请重新登录'); useUserStore().logout(); router.push('/login') }
       showToast(r.msg || '请求失败')
       return Promise.reject(r)
     }
