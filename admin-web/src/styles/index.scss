@@ -1,4 +1,116 @@
-html, body, #app { height: 100%; margin: 0; }
-body { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
-.app-page { padding: 16px; }
-.flex-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+// 校友成果展览管理后台 — 全局样式
+// 项目采用 Element Plus 组件库，本文件仅做全局微调与辅助工具
+
+:root {
+  --sidebar-width: 220px;
+  --header-height: 56px;
+  --color-primary: #00E5FF;
+  --color-bg-dark: #1A3A6E;
+  --color-bg-page: #f0f2f5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+  color: #303133;
+  background: var(--color-bg-page);
+}
+
+#app {
+  height: 100%;
+}
+
+// ============ 侧边栏 ============
+.aside {
+  background: var(--color-bg-dark) !important;
+  overflow-y: auto;
+  .logo {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// ============ 顶栏 ============
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid #e4e7ed;
+  padding: 0 20px;
+  .user {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #606266;
+  }
+}
+
+// ============ 通用 ============
+.el-main {
+  background: var(--color-bg-page);
+  padding: 20px;
+}
+
+.page-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.page-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.text-muted {
+  color: #909399;
+  font-size: 12px;
+}
+
+// ============ 仪表盘统计卡片 ============
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  .stat-label {
+    color: #909399;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #303133;
+  }
+}
