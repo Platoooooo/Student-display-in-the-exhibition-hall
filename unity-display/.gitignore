@@ -36,3 +36,9 @@ crashlytics-build.properties
 # 操作系统
 .DS_Store
 Thumbs.db
+
+# IDE / Editor 缓存
+.vs/
+.idea/
+.vscode/
+*.sln.docstates
