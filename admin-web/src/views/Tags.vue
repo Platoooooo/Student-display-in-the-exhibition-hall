@@ -57,14 +57,14 @@ const form = reactive<TagDTO>({ name: '', color: '#409EFF', sortOrder: 0 })
 async function load() { tags.value = await apiTagList() }
 
 function onAdd() { Object.assign(form, { id: undefined, name: '', color: '#409EFF', sortOrder: 0 }); formVisible.value = true }
-function onEdit(row: TagDTO) { Object.assign(form, row); formVisible.value = true }
+function onEdit(row: any) { Object.assign(form, row); formVisible.value = true }
 
 async function onSave() {
   saving.value = true
   try { await apiTagSave(form); ElMessage.success('保存成功'); formVisible.value = false; load() }
   finally { saving.value = false }
 }
-async function onDelete(row: TagDTO) {
+async function onDelete(row: any) {
   await ElMessageBox.confirm(`确认删除「${row.name}」?`, '提示', { type: 'warning' })
   await apiTagDelete(row.id!); ElMessage.success('已删除'); load()
 }

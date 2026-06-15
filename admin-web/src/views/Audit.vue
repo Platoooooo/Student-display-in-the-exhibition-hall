@@ -91,9 +91,9 @@ async function onAudit(row: any, result: 1 | 2) {
   load(page.value)
 }
 
-async function onView(row: ProfileDTO) {
+async function onView(row: any) {
   detail.value = await apiProfileDetail(row.id)
-  history.value = await apiAuditHistory(row.id) || []
+  history.value = (await apiAuditHistory(row.id) as unknown as any[]) || []
   detailVisible.value = true
 }
 

@@ -24,7 +24,7 @@
       </el-table-column>
       <el-table-column label="上架" width="90">
         <template #default="{ row }">
-          <el-switch :model-value="row.isOnShelf===1" @change="(v: boolean) => onShelfChange(row, v)" />
+          <el-switch :model-value="row.isOnShelf===1" @change="(v: any) => onShelfChange(row, v)" />
         </template>
       </el-table-column>
       <el-table-column label="权重" width="120">
@@ -92,20 +92,20 @@ async function load(p = 1) {
   const r = await apiLibrary({ page: p, size, keyword: kw.value || undefined, isOnShelf: onShelf.value, category: category.value })
   rows.value = r.records; total.value = r.total
 }
-async function onShelfChange(row: ProfileDTO, v: boolean) {
+async function onShelfChange(row: any, v: any) {
   await apiSetShelf(row.id, v ? 1 : 0)
   row.isOnShelf = v ? 1 : 0
   ElMessage.success(v ? '已上架' : '已下架')
 }
-async function onWeight(row: ProfileDTO, v: number) {
+async function onWeight(row: any, v: any) {
   await apiSetWeight(row.id, v); row.displayWeight = v
   ElMessage.success('权重已更新')
 }
-async function onView(row: ProfileDTO) {
+async function onView(row: any) {
   detail.value = await apiProfileDetail(row.id)
   detailVisible.value = true
 }
-async function onEditTags(row: ProfileDTO) {
+async function onEditTags(row: any) {
   editingId.value = row.id
   if (!allTags.value.length) allTags.value = await apiTags()
   // 用名字回填 -> 找到 id（DTO 里只有 tag 名）
@@ -117,7 +117,7 @@ async function onSaveTags() {
   ElMessage.success('已保存'); tagsVisible.value = false
   load(page.value)
 }
-async function onPush(row: ProfileDTO) {
+async function onPush(row: any) {
   if (row.isOnShelf !== 1) {
     ElMessage.warning('未上架的资料无法推送，请先上架')
     return

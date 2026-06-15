@@ -120,7 +120,7 @@ function onAdd() {
   formVisible.value = true
 }
 
-function onEdit(row: UserDTO) {
+function onEdit(row: any) {
   Object.assign(form, { ...row, password: '' })
   formVisible.value = true
 }
@@ -135,14 +135,14 @@ async function onSave() {
   } finally { saving.value = false }
 }
 
-async function onToggleStatus(row: UserDTO) {
+async function onToggleStatus(row: any) {
   await ElMessageBox.confirm(`确认${row.status === 1 ? '禁用' : '启用'}该用户?`, '提示', { type: 'warning' })
   await apiUserToggleStatus(row.id, row.status === 1 ? 0 : 1)
   ElMessage.success('操作成功')
   load(page.value)
 }
 
-async function onResetPwd(row: UserDTO) {
+async function onResetPwd(row: any) {
   const r = await ElMessageBox.prompt(`重置「${row.realName}」密码`, '重置密码', {
     confirmButtonText: '确定', cancelButtonText: '取消', inputValue: '123456',
     inputValidator: (v: string) => v.length >= 6 || '密码至少 6 位'

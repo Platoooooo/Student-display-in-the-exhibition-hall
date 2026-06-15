@@ -14,7 +14,7 @@
       <el-col :span="16">
         <el-card>
           <template #header>推送通知到大屏</template>
-          <el-input v-model="notice" type="textarea" rows="3" placeholder="输入通知文本，将以滚动条方式显示在大屏顶部" />
+          <el-input v-model="notice" type="textarea" :rows="3" placeholder="输入通知文本，将以滚动条方式显示在大屏顶部" />
           <div style="margin-top:12px;text-align:right">
             <el-button @click="onRefreshPlaylist">刷新播放列表</el-button>
             <el-button type="primary" :disabled="!notice.trim()" @click="onPushNotice">推送通知</el-button>
