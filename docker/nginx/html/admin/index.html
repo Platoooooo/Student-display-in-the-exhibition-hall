@@ -1,3 +1,25 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>管理后台</title></head>
-<body><h1>管理后台 — 构建后部署</h1><p>请运行 <code>npm run build</code> 后将 dist 内容拷贝到此目录。</p></body></html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>校友成果展览管理后台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Microsoft YaHei", sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { background: #fff; border-radius: 12px; padding: 48px 40px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 480px; }
+    h1 { color: #1A3A6E; font-size: 22px; margin-bottom: 12px; }
+    p { color: #606266; font-size: 14px; margin-bottom: 8px; line-height: 1.6; }
+    code { background: #f5f7fa; padding: 2px 8px; border-radius: 4px; font-size: 13px; color: #409EFF; }
+    .tip { margin-top: 16px; padding: 12px; background: #ecf5ff; border-radius: 8px; color: #409EFF; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>&#x1F393; 校友成果展览管理后台</h1>
+    <p>管理后台静态资源尚未部署。</p>
+    <p>请在 <code>admin-web/</code> 下执行 <code>npm run build</code>，<br>然后将 <code>dist/</code> 内容复制到此目录。</p>
+    <div class="tip">&#x26A0; 如果您看到此页面，说明 Nginx 已正常运行，等待前端构建产物部署。</div>
+  </div>
+</body>
+</html>
