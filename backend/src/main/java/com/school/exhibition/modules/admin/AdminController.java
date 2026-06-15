@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.annotation.SaMode;
 import com.school.exhibition.common.result.PageResult;
 import com.school.exhibition.common.result.R;
+import com.school.exhibition.modules.display.DisplayWebSocketHandler;
 import com.school.exhibition.modules.profile.dto.ProfileDTO;
 import com.school.exhibition.modules.tag.entity.DisplayTag;
 import com.school.exhibition.modules.tag.mapper.DisplayTagMapper;
@@ -22,6 +23,7 @@ public class AdminController {
     private final AdminProfileService adminProfileService;
     private final DashboardService dashboardService;
     private final DisplayTagMapper tagMapper;
+    private final DisplayWebSocketHandler wsHandler;
 
     /** 资料库（仅已发布） */
     @GetMapping("/profile/library")
@@ -65,5 +67,32 @@ public class AdminController {
     @GetMapping("/dashboard")
     public R<DashboardService.DashboardStat> dashboard() {
         return R.ok(dashboardService.overview());
+    }
+
+    /** 大屏推送：强制切到指定资料 */
+    @PostMapping("/display/push/profile/{id}")
+    public R<Void> pushProfile(@PathVariable Long id) {
+        wsHandler.broadcast("FORCE_PROFILE", String.valueOf(id));
+        return R.ok();
+    }
+
+    /** 大屏推送：通知/公告 */
+    @PostMapping("/display/push/notice")
+    public R<Void> pushNotice(@RequestBody Map<String, String> body) {
+        wsHandler.broadcast("NOTICE", body.getOrDefault("text", ""));
+        return R.ok();
+    }
+
+    /** 大屏推送：手动刷新播放列表 */
+    @PostMapping("/display/refresh")
+    public R<Void> refresh() {
+        wsHandler.broadcast("REFRESH_PLAYLIST", "");
+        return R.ok();
+    }
+
+    /** 大屏在线状态 */
+    @GetMapping("/display/online")
+    public R<Map<String, Integer>> online() {
+        return R.ok(Map.of("count", wsHandler.onlineCount()));
     }
 }

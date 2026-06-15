@@ -24,6 +24,19 @@ namespace Exhibition.Network
             StartCoroutine(GetRequest<List<ProfileDTO>>("/api/display/playlist", onSuccess, onError));
         }
 
+        public void GetList(int page, int size, int? category, Action<PageResult<ProfileDTO>> onSuccess, Action<string> onError = null)
+        {
+            string path = $"/api/display/list?page={page}&size={size}";
+            if (category.HasValue) path += $"&category={category.Value}";
+            StartCoroutine(GetRequest<PageResult<ProfileDTO>>(path, onSuccess, onError));
+        }
+
+        public void Search(string keyword, Action<List<ProfileDTO>> onSuccess, Action<string> onError = null)
+        {
+            string path = $"/api/display/search?keyword={UnityWebRequest.EscapeURL(keyword)}";
+            StartCoroutine(GetRequest<List<ProfileDTO>>(path, onSuccess, onError));
+        }
+
         public void GetProfile(long id, Action<ProfileDTO> onSuccess, Action<string> onError = null)
         {
             StartCoroutine(GetRequest<ProfileDTO>($"/api/display/profile/{id}", onSuccess, onError));

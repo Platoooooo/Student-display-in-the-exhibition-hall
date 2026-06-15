@@ -13,6 +13,13 @@ namespace Exhibition.Network
     }
 
     [Serializable]
+    public class PageResult<T>
+    {
+        public long total;
+        public List<T> records;
+    }
+
+    [Serializable]
     public class ProfileDTO
     {
         public long id;

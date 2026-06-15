@@ -18,6 +18,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
                     .notMatch(
                             "/api/auth/login",
                             "/api/auth/captcha",
+                            "/api/college/list",
                             "/api/display/**",
                             "/ws/display/**",
                             "/api/file/preview/**",

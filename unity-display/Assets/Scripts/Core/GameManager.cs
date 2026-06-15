@@ -46,10 +46,27 @@ namespace Exhibition.Core
         public void SwitchMode(DisplayMode mode)
         {
             currentMode = mode;
-            carouselRoot.SetActive(mode == DisplayMode.Carousel);
-            listRoot.SetActive(mode == DisplayMode.List);
-            searchRoot.SetActive(mode == DisplayMode.Search);
-            personalRoot.SetActive(mode == DisplayMode.Personal);
+            if (carouselRoot != null) carouselRoot.SetActive(mode == DisplayMode.Carousel);
+            if (listRoot != null) listRoot.SetActive(mode == DisplayMode.List);
+            if (searchRoot != null) searchRoot.SetActive(mode == DisplayMode.Search);
+            if (personalRoot != null) personalRoot.SetActive(mode == DisplayMode.Personal);
+            EventBus.Emit("ModeChanged", mode);
+        }
+
+        /// <summary>
+        /// 由后端 FORCE_PROFILE 推送触发: 临时把指定资料插到 playlist 第一位并切到轮播
+        /// </summary>
+        public void ForceShowProfile(long profileId)
+        {
+            ApiClient.Instance.GetProfile(profileId, p =>
+            {
+                if (p == null) return;
+                playlist.RemoveAll(x => x.id == p.id);
+                playlist.Insert(0, p);
+                EventBus.Emit(GameEvents.PlaylistLoaded, playlist);
+                SwitchMode(DisplayMode.Carousel);
+                Debug.Log($"[GameManager] 强制展示资料 {p.title}");
+            }, err => Debug.LogError("[GameManager] 强制展示失败: " + err));
         }
 
         void OnPersonalModeStart(object data)

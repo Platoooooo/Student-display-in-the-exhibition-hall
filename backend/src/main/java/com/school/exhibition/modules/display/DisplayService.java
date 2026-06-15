@@ -1,7 +1,10 @@
 package com.school.exhibition.modules.display;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.school.exhibition.common.exception.BusinessException;
+import com.school.exhibition.common.result.PageResult;
 import com.school.exhibition.modules.profile.ProfileService;
 import com.school.exhibition.modules.profile.dto.ProfileDTO;
 import com.school.exhibition.modules.profile.entity.AlumniProfile;
@@ -30,6 +33,31 @@ public class DisplayService {
                 .orderByDesc(AlumniProfile::getDisplayWeight)
                 .orderByDesc(AlumniProfile::getUpdatedAt)
                 .last("limit " + maxItems));
+        return list.stream().map(p -> profileService.toDTO(p, true)).toList();
+    }
+
+    /** 大屏列表模式：分页（已上架） */
+    public PageResult<ProfileDTO> getList(Integer page, Integer size, Integer category) {
+        Page<AlumniProfile> p = new Page<>(page, size);
+        IPage<AlumniProfile> r = profileMapper.selectPage(p, Wrappers.<AlumniProfile>lambdaQuery()
+                .eq(AlumniProfile::getStatus, ProfileService.STATUS_PUBLISHED)
+                .eq(AlumniProfile::getIsOnShelf, 1)
+                .eq(category != null, AlumniProfile::getCategory, category)
+                .orderByDesc(AlumniProfile::getDisplayWeight)
+                .orderByDesc(AlumniProfile::getUpdatedAt));
+        List<ProfileDTO> list = r.getRecords().stream().map(x -> profileService.toDTO(x, true)).toList();
+        return PageResult.of(r.getTotal(), list);
+    }
+
+    /** 大屏搜索：按标题模糊匹配 */
+    public List<ProfileDTO> search(String keyword) {
+        if (keyword == null || keyword.isBlank()) return List.of();
+        List<AlumniProfile> list = profileMapper.selectList(Wrappers.<AlumniProfile>lambdaQuery()
+                .eq(AlumniProfile::getStatus, ProfileService.STATUS_PUBLISHED)
+                .eq(AlumniProfile::getIsOnShelf, 1)
+                .like(AlumniProfile::getTitle, keyword)
+                .orderByDesc(AlumniProfile::getDisplayWeight)
+                .last("limit 30"));
         return list.stream().map(p -> profileService.toDTO(p, true)).toList();
     }
 

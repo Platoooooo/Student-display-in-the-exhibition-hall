@@ -9,13 +9,16 @@
   </van-tabs>
   <van-empty v-if="!list.length" description="暂无数据" />
   <van-cell-group inset v-for="p in list" :key="p.id" style="margin:8px">
-    <van-cell :title="p.title" :label="p.achieveLevel + ' · ' + (p.achieveDate || '')">
+    <van-cell :title="p.title" :label="(p.achieveLevel || '') + ' · ' + (p.achieveDate || '')"
+      is-link @click="$router.push(`/profile/${p.id}`)">
       <template #right-icon>
         <van-tag :type="statusType(p.status)" round>{{ statusText(p.status) }}</van-tag>
       </template>
     </van-cell>
     <van-cell v-if="p.rejectReason" title="驳回原因" :label="p.rejectReason" />
     <div style="display:flex;gap:8px;padding:8px 12px;justify-content:flex-end">
+      <van-button v-if="p.status === 0 || p.status === 4" size="small" type="primary" plain
+        @click="$router.push(`/submit?id=${p.id}`)">编辑</van-button>
       <van-button v-if="p.status === 0 || p.status === 4" size="small" type="danger" plain @click="onDelete(p)">删除</van-button>
     </div>
   </van-cell-group>

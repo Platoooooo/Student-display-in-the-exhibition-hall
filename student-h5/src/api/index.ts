@@ -19,3 +19,9 @@ export const apiProfileDelete = (id: number) => http.delete(`/api/profile/${id}`
 export const apiFaceRegister = (data: { featureBase64: string; faceImageUrl?: string }) =>
   http.post('/api/face/register', data)
 export const apiFaceStatus = () => http.get('/api/face/status') as any
+
+export const apiAuditHistory = (id: number) => http.get(`/api/audit/${id}/history`) as any
+export const apiTagList = () => http.get('/api/tag/list') as any
+export const apiChangePassword = (data: { oldPassword: string; newPassword: string }) =>
+  http.put('/api/user/change-password', data)
+export const apiUpdateProfile = (data: any) => http.put('/api/user/profile', data)

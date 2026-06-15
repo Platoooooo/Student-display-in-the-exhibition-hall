@@ -1,5 +1,6 @@
 package com.school.exhibition.modules.display;
 
+import com.school.exhibition.common.result.PageResult;
 import com.school.exhibition.common.result.R;
 import com.school.exhibition.modules.profile.dto.ProfileDTO;
 import com.school.exhibition.modules.face.FaceService;
@@ -22,6 +23,21 @@ public class DisplayController {
     @GetMapping("/playlist")
     public R<List<ProfileDTO>> playlist() {
         return R.ok(displayService.getPlaylist());
+    }
+
+    /** 大屏列表模式：分页 */
+    @GetMapping("/list")
+    public R<PageResult<ProfileDTO>> list(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "12") Integer size,
+            @RequestParam(required = false) Integer category) {
+        return R.ok(displayService.getList(page, size, category));
+    }
+
+    /** 大屏搜索 */
+    @GetMapping("/search")
+    public R<List<ProfileDTO>> search(@RequestParam String keyword) {
+        return R.ok(displayService.search(keyword));
     }
 
     /** 单条资料详情 */
