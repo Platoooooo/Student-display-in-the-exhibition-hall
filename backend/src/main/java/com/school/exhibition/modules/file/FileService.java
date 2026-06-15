@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -22,8 +23,32 @@ public class FileService {
     private final MinioClient minioClient;
     private final MinioConfig minioConfig;
 
+    /** 允许上传的 MIME 类型白名单 */
+    private static final Set<String> ALLOWED_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+            "video/mp4", "video/webm",
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+
+    /** 单文件最大尺寸：50MB */
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024L;
+
     public String upload(MultipartFile file, String dir) {
         if (file == null || file.isEmpty()) throw new BusinessException("文件不能为空");
+
+        // 文件大小校验
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new BusinessException("文件过大，最大支持 50MB");
+        }
+
+        // MIME 类型白名单
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_TYPES.contains(contentType)) {
+            throw new BusinessException("不支持的文件类型: " + contentType);
+        }
+
         String original = file.getOriginalFilename();
         String ext = "";
         if (original != null && original.contains(".")) {

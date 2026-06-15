@@ -6,6 +6,7 @@ import com.school.exhibition.modules.profile.dto.ProfileDTO;
 import com.school.exhibition.modules.face.FaceService;
 import com.school.exhibition.modules.face.dto.FaceRecognizeRequest;
 import com.school.exhibition.modules.face.dto.FaceRecognizeResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +49,7 @@ public class DisplayController {
 
     /** 人脸识别比对（Unity 上报特征） */
     @PostMapping("/face/recognize")
-    public R<FaceRecognizeResult> recognize(@RequestBody FaceRecognizeRequest req) {
+    public R<FaceRecognizeResult> recognize(@Valid @RequestBody FaceRecognizeRequest req) {
         return R.ok(faceService.recognize(req));
     }
 }

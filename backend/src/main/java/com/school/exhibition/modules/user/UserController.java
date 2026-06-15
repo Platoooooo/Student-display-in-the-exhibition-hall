@@ -12,6 +12,7 @@ import com.school.exhibition.common.result.R;
 import com.school.exhibition.modules.college.entity.College;
 import com.school.exhibition.modules.college.mapper.CollegeMapper;
 import com.school.exhibition.modules.user.dto.ChangePasswordRequest;
+import com.school.exhibition.modules.user.dto.UpdateProfileRequest;
 import com.school.exhibition.modules.user.dto.UserDTO;
 import com.school.exhibition.modules.user.dto.UserSaveRequest;
 import com.school.exhibition.modules.user.entity.SysUser;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用户管理 - 仅校级管理员可操作
@@ -125,7 +125,7 @@ public class UserController {
 
     /** 用户自己修改密码 */
     @PutMapping("/change-password")
-    public R<Void> changePassword(@RequestBody ChangePasswordRequest req) {
+    public R<Void> changePassword(@Valid @RequestBody ChangePasswordRequest req) {
         SysUser u = userService.currentUser();
         if (!BCrypt.checkpw(req.getOldPassword(), u.getPassword()))
             throw new BusinessException("原密码错误");
@@ -136,12 +136,12 @@ public class UserController {
 
     /** 用户自己更新个人资料（头像/电话/邮箱/简介等） */
     @PutMapping("/profile")
-    public R<Void> updateProfile(@RequestBody Map<String, Object> body) {
+    public R<Void> updateProfile(@RequestBody UpdateProfileRequest body) {
         SysUser u = userService.currentUser();
-        if (body.get("avatarUrl") != null) u.setAvatarUrl((String) body.get("avatarUrl"));
-        if (body.get("phone") != null) u.setPhone((String) body.get("phone"));
-        if (body.get("email") != null) u.setEmail((String) body.get("email"));
-        if (body.get("bio") != null) u.setBio((String) body.get("bio"));
+        if (body.getAvatarUrl() != null) u.setAvatarUrl(body.getAvatarUrl());
+        if (body.getPhone() != null) u.setPhone(body.getPhone());
+        if (body.getEmail() != null) u.setEmail(body.getEmail());
+        if (body.getBio() != null) u.setBio(body.getBio());
         userMapper.updateById(u);
         return R.ok();
     }
