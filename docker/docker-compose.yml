@@ -7,7 +7,7 @@ services:
     container_name: exhibition-mysql
     restart: always
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: ${MYSQL_DB:-exhibition_db}
@@ -34,7 +34,7 @@ services:
     container_name: exhibition-redis
     restart: always
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     command: redis-server --requirepass ${REDIS_PASSWORD:-redis123456} --appendonly yes
     volumes:
       - ./data/redis:/data
@@ -48,12 +48,12 @@ services:
 
   # ============= MinIO =============
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
     container_name: exhibition-minio
     restart: always
     ports:
-      - "${MINIO_API_PORT:-9000}:9000"     # API
-      - "${MINIO_CONSOLE_PORT:-9001}:9001" # 控制台
+      - "127.0.0.1:${MINIO_API_PORT:-9000}:9000"     # API
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001" # 控制台
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minio123456}
@@ -76,7 +76,7 @@ services:
     container_name: exhibition-backend
     restart: always
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
     depends_on:
       mysql:
         condition: service_healthy
