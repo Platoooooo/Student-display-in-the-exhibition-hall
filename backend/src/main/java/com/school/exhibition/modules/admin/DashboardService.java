@@ -80,18 +80,21 @@ public class DashboardService {
         }
         s.setByCategory(byCategory);
 
-        // 最近 7 天识别趋势
+        // 最近 7 天识别趋势（单条 GROUP BY 替代 7 次独立 COUNT）
         List<DailyCount> trend = new ArrayList<>();
+        Map<String, Long> dayMap = new LinkedHashMap<>();
+        for (Map<String, Object> row : recognizeLogMapper.countDailyLast7Days()) {
+            Object date = row.get("date");
+            Object total = row.get("total");
+            if (date != null && total != null) {
+                dayMap.put(date.toString(), ((Number) total).longValue());
+            }
+        }
         for (int i = 6; i >= 0; i--) {
-            LocalDate day = LocalDate.now().minusDays(i);
-            LocalDateTime start = day.atStartOfDay();
-            LocalDateTime end = start.plusDays(1);
-            Long count = recognizeLogMapper.selectCount(Wrappers.<RecognizeLog>lambdaQuery()
-                    .ge(RecognizeLog::getCreatedAt, start)
-                    .lt(RecognizeLog::getCreatedAt, end));
+            String day = LocalDate.now().minusDays(i).toString();
             DailyCount dc = new DailyCount();
-            dc.setDate(day.toString());
-            dc.setCount(count);
+            dc.setDate(day);
+            dc.setCount(dayMap.getOrDefault(day, 0L));
             trend.add(dc);
         }
         s.setRecognizeTrend(trend);
