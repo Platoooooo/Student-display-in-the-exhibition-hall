@@ -2,7 +2,6 @@ package com.school.exhibition.modules.face;
 
 import com.school.exhibition.modules.face.dto.*;
 import com.school.exhibition.modules.face.entity.FaceFeature;
-import com.school.exhibition.modules.face.mapper.FaceFeatureMapper;
 import com.school.exhibition.modules.profile.ProfileService;
 import com.school.exhibition.modules.profile.dto.ProfileDTO;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FaceService {
 
-    private final FaceFeatureMapper faceFeatureMapper;
+    private final FaceFeatureCache faceFeatureCache;
     private final ProfileService profileService;
     private final RecognizeLogService recognizeLogService;
 
@@ -27,17 +26,20 @@ public class FaceService {
 
     /**
      * 人脸特征比对
-     * 注意：生产环境特征量大时应改用向量数据库（Milvus/PgVector）或缓存全部特征到内存定时刷新
+     * 优先从内存缓存读取特征向量，避免每次全表扫描。
+     * 生产环境特征量 >10 万时应升级为向量数据库（Milvus/PgVector）。
      */
     public FaceRecognizeResult recognize(FaceRecognizeRequest req) {
         byte[] target = Base64.getDecoder().decode(req.getFeatureBase64());
 
-        List<FaceFeature> all = faceFeatureMapper.selectList(null);
+        List<FaceFeature> all = faceFeatureCache.getAll();
         FaceFeature best = null;
         float bestScore = 0f;
 
         for (FaceFeature f : all) {
-            float score = cosineSimilarity(target, f.getFeatureData());
+            byte[] featureData = f.getFeatureData();
+            if (featureData == null || featureData.length == 0) continue;
+            float score = cosineSimilarity(target, featureData);
             if (score > bestScore) {
                 bestScore = score;
                 best = f;
@@ -57,7 +59,7 @@ public class FaceService {
             List<ProfileDTO> profiles = profileService.getPublishedByUserId(best.getUserId());
             result.setProfiles(profiles);
 
-            log.info("识别成功 user={} score={}", best.getUserId(), bestScore);
+            log.info("识别成功 user={} score={} cacheSize={}", best.getUserId(), bestScore, all.size());
         } else {
             result.setMatched(false);
         }
