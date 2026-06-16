@@ -2,6 +2,20 @@
 
 > 高校校友优秀成果 / 荣誉 / 作品的全流程管理平台。
 > 学生填报 → 三级审核 → 大屏（Unity）人脸识别个性化展示。
+>
+> **开发模式**：Vibe Coding — 需求清晰、分段实现、快速迭代
+
+## 项目背景
+
+高校校友在学习、工作、生活中积累了丰富的优秀成果（荣誉奖项、作品、成绩等），这些成果散落在各个渠道，缺乏统一的管理和展示平台。本项目构建一套 **"校友填报 → 三级审核 → 大屏人脸识别个性化展示"** 的全流程管理系统，适用于校内展览馆、成果展示厅等场景。
+
+### 核心亮点
+
+- 🏆 **三级审核流**：院级审核 → 教务处审核 → 校级上架，保障成果质量
+- 🖥️ **Unity 3D 大屏**：URP 渲染管线，4 种展示模式，KenBurns + Bloom + 粒子特效
+- 👤 **人脸识别**：ArcFace 离线 SDK，摄像头抓帧 → 特征提取 → 后端比对 → 个性化展示
+- 📱 **多端覆盖**：学生 H5 填报 + 管理后台审核 + Unity 大屏展示
+- 🐳 **一键部署**：Docker Compose 编排，开发/生产环境统一
 
 ## 技术栈
 
@@ -30,7 +44,8 @@ exhibition-system/
 ├── unity-display/  # Unity 大屏
 │   └── Assets/Scripts/{Core,Network,Display,FaceRecognition,UI,DTOs}/
 ├── docker/         # docker-compose + nginx + 初始化 SQL + 启动脚本
-└── docs/
+├── docs/           # 需求文档 / 迭代记录 / 开发指南 / 视觉设计 / SQL
+└── screenshots/    # 系统全流程运行截图
 ```
 
 ## 一键启动（开发环境）
@@ -117,6 +132,23 @@ Unity 端 25s 心跳 + 5s 自动重连。
 
 > ArcFaceWrapper 默认 `useMock=true`：用图像哈希生成确定性特征，无虹软 SDK 也能联调。
 > 真机上线：`ArcFaceWrapper.Init(appId, sdkKey, useMock: false)` 并部署虹软 dll。
+
+## 迭代记录
+
+本项目采用 **Vibe Coding** 开发模式，分 4 个阶段、16 次迭代完成。详细迭代记录见 [docs/迭代记录.md](docs/迭代记录.md)。
+
+| 阶段 | 内容 | 关键迭代 |
+|------|------|----------|
+| 1. 后端骨架 | Spring Boot + 建表 + 用户/文件/资料CRUD + Docker | 3 次 commit |
+| 2. 业务闭环 | 三级审核流 + 管理后台 + H5端 + 大屏API | 4 次 commit |
+| 3. Unity基础与动效 | URP项目 + API/WS通信 + 轮播/列表/查询模式 + 人脸识别 | 3 次 commit |
+| 4. 安全加固与部署 | 安全头/速率限制/端口绑定 + 性能优化 + 兼容性修复 | 6 次 commit |
+
+> **最新迭代** (2026-06-16)：package-lock.json 锁定依赖版本、TS 5.0 兼容性修复、TS 类型错误修复、Map 导入补充。
+
+## 项目截图
+
+系统运行截图存放于 [screenshots/](screenshots/) 目录，覆盖学生端 H5、管理后台、Unity 大屏、部署运维四大模块。
 
 ## 部署
 
