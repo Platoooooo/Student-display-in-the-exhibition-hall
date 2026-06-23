@@ -1,7 +1,7 @@
 # 校友成果展览系统
 
 > 高校校友优秀成果 / 荣誉 / 作品的全流程管理平台。
-> 学生填报 → 三级审核 → 大屏（Unity）人脸识别个性化展示。
+> 学生填报 → 三级审核 → 大屏人脸识别个性化展示。
 >
 > **开发模式**：Vibe Coding — 需求清晰、分段实现、快速迭代
 
@@ -12,94 +12,107 @@
 ### 核心亮点
 
 - 🏆 **三级审核流**：院级审核 → 教务处审核 → 校级上架，保障成果质量
-- 🖥️ **Unity 3D 大屏**：URP 渲染管线，4 种展示模式，KenBurns + Bloom + 粒子特效
-- 👤 **人脸识别**：ArcFace 离线 SDK，摄像头抓帧 → 特征提取 → 后端比对 → 个性化展示
-- 📱 **多端覆盖**：学生 H5 填报 + 管理后台审核 + Unity 大屏展示
-- 🐳 **一键部署**：Docker Compose 编排，开发/生产环境统一
+- 🖥️ **Vue 大屏展示**：全屏轮播、CSS 动画（KenBurns / 淡入淡出）、星空背景
+- 👤 **人脸识别**：浏览器摄像头 → 后端 JNA 调用 ArcFace DLL → 特征比对 → 个性化展示
+- 📱 **多端覆盖**：学生 H5 填报 + 管理后台审核 + Vue 大屏展示
+- 🐳 **一键启停**：PowerShell 脚本编排（`start-all.ps1` / `stop-all.ps1` / `restart-all.ps1`）
 
 ## 技术栈
 
 | 层 | 技术 |
 |---|------|
-| 后端 | Spring Boot 3.2 + MyBatis Plus + Sa-Token + MinIO + WebSocket |
+| 后端 | Spring Boot 3.2 + MyBatis Plus + Sa-Token + JNA + MinIO + WebSocket |
 | 存储 | MySQL 8 / Redis 7 / MinIO |
 | 管理后台 | Vue 3 + TS + Vite + Element Plus + Pinia |
 | 学生 H5 | Vue 3 + TS + Vite + Vant |
-| 大屏 | Unity 2022.3 LTS (URP) + DOTween + Cinemachine + Newtonsoft.Json + NativeWebSocket |
-| 人脸 | 虹软 ArcFace 4.x（C# DllImport，Mock 模式可无 SDK 联调） |
+| 大屏展示 | Vue 3 + CSS Animation (KenBurns) + getUserMedia (人脸) |
+| 人脸 | 虹软 ArcFace v3.0 离线 SDK（JNA 桥接，Mock/Real 自动切换） |
+| 字体 | HarmonyOS Sans SC / Rajdhani / DIN |
 
 ## 项目结构
 
 ```
 exhibition-system/
-├── backend/        # Spring Boot 后端
+├── backend/              # Spring Boot 后端
 │   └── src/main/java/com/school/exhibition/
 │       ├── modules/{user,profile,audit,admin,display,face,file,tag,college}
-│       ├── config/    # SaToken / WebSocket / Minio / CORS / MybatisPlus
-│       └── common/    # R、PageResult、BusinessException、GlobalExceptionHandler
-├── admin-web/      # Vue3 管理后台
-│   └── src/views/  # Dashboard、Audit、Library、Users、Tags、DisplayControl
-├── student-h5/     # Vue3 学生端 H5 (Vant)
-│   └── src/views/  # Home、Submit（创建/编辑）、Me、ProfileDetail、FaceRegister
-├── unity-display/  # Unity 大屏
+│       ├── config/       # SaToken / WebSocket / MinIO / CORS / MybatisPlus
+│       └── common/       # R、PageResult、BusinessException、GlobalExceptionHandler
+├── admin-web/            # Vue3 管理后台 + 大屏展示
+│   └── src/views/        # Dashboard / Audit / Library / Users / Tags / DisplayScreen
+├── student-h5/           # Vue3 学生端 H5 (Vant)
+│   └── src/views/        # Home / Submit / Me / ProfileDetail / FaceRegister
+├── unity-display/        # Unity 大屏（暂时停用，由 Vue 替代）
 │   └── Assets/Scripts/{Core,Network,Display,FaceRecognition,UI,DTOs}/
-├── docker/         # docker-compose + nginx + 初始化 SQL + 启动脚本
-├── docs/           # 需求文档 / 迭代记录 / 开发指南 / 视觉设计 / SQL
-└── screenshots/    # 系统全流程运行截图
+├── docker/               # docker-compose + nginx + SQL + 启动脚本
+├── docs/                 # 需求文档 / 迭代记录 / 开发指南 / 视觉设计 / SQL
+├── art/                  # 字体 / 贴图素材
+├── logs/                 # 后端运行日志
+├── start-all.ps1         # 一键启动全部服务
+├── stop-all.ps1          # 一键停止全部服务
+└── restart-all.ps1       # 一键重启全部服务
 ```
 
 ## 一键启动（开发环境）
 
 依赖：JDK 17+、Maven 3.8+、Node.js 18+、Docker Desktop。
 
-```bash
-# 1) 起基础组件（MySQL/Redis/MinIO）
-cd docker
-docker compose up -d mysql redis minio
+```powershell
+# 一键启动全部服务（Docker + Backend + Admin + H5）
+.\start-all.ps1
 
-# 2) 启动后端
-cd ../backend
-mvn spring-boot:run
+# 停止
+.\stop-all.ps1
 
-# 3) 启动管理后台
-cd ../admin-web
-npm install && npm run dev   # http://localhost:5173
-
-# 4) 启动学生端
-cd ../student-h5
-npm install && npm run dev   # http://localhost:5174
-
-# 5) Unity：用 Unity Hub 打开 unity-display 工程，运行 MainScene
+# 重启
+.\restart-all.ps1
 ```
 
-或直接执行 [docker/start.sh](docker/start.sh) / [docker/start.ps1](docker/start.ps1)。
+或手动分步启动：
+
+```bash
+cd docker
+docker compose up -d mysql redis minio   # 基础设施
+cd ../backend
+mvn spring-boot:run                       # 后端 :8080
+cd ../admin-web
+npm install && npm run dev                # 管理后台 :5173
+cd ../student-h5
+npm install && npm run dev                # 学生 H5 :5174
+```
+
+### 启动后访问
+
+| 页面 | 地址 | 说明 |
+|------|------|------|
+| 管理后台 | http://localhost:5173 | 审核 / 资料库 / 用户管理 |
+| 学生 H5 | http://localhost:5174 | 成果提交 / 人脸录入 |
+| 大屏展示 | http://localhost:5173/screen | 公开页面，免登录 |
+| 后端 API | http://localhost:8080 | Swagger 未配置，见下方 API 表 |
+| MinIO | http://localhost:9001 | minioadmin / minio123456 |
 
 ## 默认账号（密码均为 `123456`）
 
-| 用户名 | 角色 | 说明 |
-|---|---|---|
-| admin | 校级管理员 | 上架、权重、用户/标签管理、Dashboard、大屏控制 |
-| jiaowu | 教务处 | 第二级审核 |
-| cs_audit | 院级审核（计信院） | 第一级审核 |
-| student01 | 学生 | 提交资料 / 录入人脸 |
-| alumni01 | 校友 | 提交资料 / 录入人脸 |
+| 用户名 | 角色 | role | 说明 |
+|---|---|---|---|
+| admin | 校级管理员 | 5 | 上架、权重、用户/标签管理、大屏控制 |
+| jiaowu | 教务处审核员 | 4 | 第二级审核 |
+| cs_audit | 院级审核员（计信院） | 3 | 第一级审核 |
+| student01 | 学生（张三） | 1 | 提交资料 / 录入人脸 |
+| alumni01 | 校友（李四） | 2 | 提交资料 / 录入人脸 |
 
-## 核心 API（全部以 `/api` 开头）
+## 人脸识别流程（Vue 版）
 
-| 模块 | 路径 | 说明 |
-|---|---|---|
-| 认证 | POST `/auth/login` · `/auth/logout` · GET `/auth/me` | Sa-Token，header `Authorization: <token>` |
-| 学院 | GET `/college/list` | 学院列表（开放） |
-| 资料 | POST `/profile/draft` · `/submit` · GET `/profile/{id}` · DELETE `/profile/{id}` · GET `/profile/my` | 学生端 CRUD（驳回可编辑重提） |
-| 文件 | POST `/file/upload` (`?dir=cover\|media\|face\|avatar`) | MinIO 上传 |
-| 审核 | GET `/audit/pending` · POST `/audit/{id}/audit` · GET `/audit/{id}/history` | 三级审核 |
-| 用户管理 | GET `/user/list` · POST `/user/save` · PUT `/user/{id}/status` · `/{id}/reset-password` · `/change-password` · `/profile` | 校管/教务可用 |
-| 标签 | GET `/tag/list` · POST `/tag/save` · DELETE `/tag/{id}` | 标签 CRUD |
-| 后台资料库 | GET `/admin/profile/library` · PUT `/admin/profile/{id}/shelf\|weight` · POST `/admin/profile/{id}/tags` | 上架/权重/标签 |
-| Dashboard | GET `/admin/dashboard` | 概览 + 学院/类目分布 + 近 7 天识别趋势 |
-| 大屏控制 | POST `/admin/display/push/profile/{id}` · `/push/notice` · `/refresh` · GET `/admin/display/online` | 通过 WS 控制大屏 |
-| 大屏端 | GET `/display/playlist` · `/list` · `/search?keyword=` · `/profile/{id}` · POST `/display/face/recognize` · WS `/ws/display` | Unity 接入 |
-| 人脸 | POST `/face/register` · GET `/face/status` | 学生录入 |
+```
+浏览器摄像头 (getUserMedia) 每 1.5s 抓帧
+→ 压缩为 JPEG base64 → POST /api/face/recognize-image
+→ 后端 JNA 调用 ArcFace DLL 提取 1032 字节特征
+→ 与 face_feature 表中所有注册特征余弦比对
+→ 匹配成功 → 大屏切 PersonalMode → 15s 无新人脸回默认轮播
+```
+
+> ArcFace 未配置 AppId/SDKKey 时自动降级 Mock 模式（基于图像字节生成确定性特征，可联调）。
+> 真机上线：设置环境变量 `ARCFACE_APP_ID` + `ARCFACE_SDK_KEY` → 重启后端。
 
 ## 三级审核状态机
 
@@ -110,45 +123,27 @@ npm install && npm run dev   # http://localhost:5174
 学生可在 0/4 状态修改重提；3 已发布需联系管理员先下架再修改
 ```
 
-## Unity 大屏 4 种模式
+## 完整 API 表
 
-| 模式 | 触发 | 行为 |
+| 模块 | 路径 | 说明 |
 |---|---|---|
-| Carousel（默认轮播） | 启动 / Personal 退出 / `REFRESH_PLAYLIST` | 双卡片交叉切换，KenBurns + Bloom + 粒子转场 |
-| List（列表浏览） | 顶部按钮 / `SWITCH_MODE` | 网格瀑布流 + 类目筛选 + 滚动加载 |
-| Search（关键词搜索） | 顶部按钮 | 输入关键字 → `/api/display/search` |
-| Personal（人脸专属） | `FaceDetector` 识别命中 | 镜头推近 + 欢迎语 + 个人作品轮播，30s 无新人脸自动退出 |
+| 认证 | POST `/api/auth/login` · `/logout` · GET `/api/auth/me` | Sa-Token |
+| 资料 | POST `/api/profile/draft` · `/submit` · GET/PUT/DELETE `/api/profile/{id}` · GET `/api/profile/my` | 学生 CRUD |
+| 文件 | POST `/api/file/upload` (`?dir=cover\|media\|face\|avatar`) | MinIO |
+| 审核 | GET `/api/audit/pending` · POST `/api/audit/{id}/audit` · GET `/api/audit/{id}/history` | 二级审核 |
+| 用户 | GET `/api/user/list` · POST `/api/user/save` · PUT `/api/user/{id}/status\|reset-password` · `/change-password` | 校管 |
+| 标签 | GET `/api/tag/list` · POST `/api/tag/save` · DELETE `/api/tag/{id}` | 标签 CRUD |
+| 资料库 | GET `/api/admin/profile/library` · PUT `/api/admin/profile/{id}/shelf\|weight` · POST `/{id}/tags` | 上架 |
+| 大屏 | GET `/api/display/playlist` · `/list` · `/search` · `/profile/{id}` | 轮播数据 |
+| 人脸 | POST `/api/face/register` · `/extract` · `/recognize-image` · GET `/api/face/status` | 注册/识别 |
 
-WebSocket 消息类型：`REFRESH_PLAYLIST` / `FORCE_PROFILE` / `SWITCH_MODE` / `NOTICE` / `WELCOME` / `PONG`，
-Unity 端 25s 心跳 + 5s 自动重连。
+## Vue 大屏技术实现
 
-## 人脸识别流程
-
-```
-摄像头每 500ms 抓帧 → ArcFaceWrapper.DetectAndExtract（1032 字节特征）
-→ Base64 上报 /api/display/face/recognize → 后端遍历 face_feature 表余弦比对
-→ matched=true → Unity 切 PersonalMode
-```
-
-> ArcFaceWrapper 默认 `useMock=true`：用图像哈希生成确定性特征，无虹软 SDK 也能联调。
-> 真机上线：`ArcFaceWrapper.Init(appId, sdkKey, useMock: false)` 并部署虹软 dll。
-
-## 迭代记录
-
-本项目采用 **Vibe Coding** 开发模式，分 4 个阶段、16 次迭代完成。详细迭代记录见 [docs/迭代记录.md](docs/迭代记录.md)。
-
-| 阶段 | 内容 | 关键迭代 |
-|------|------|----------|
-| 1. 后端骨架 | Spring Boot + 建表 + 用户/文件/资料CRUD + Docker | 3 次 commit |
-| 2. 业务闭环 | 三级审核流 + 管理后台 + H5端 + 大屏API | 4 次 commit |
-| 3. Unity基础与动效 | URP项目 + API/WS通信 + 轮播/列表/查询模式 + 人脸识别 | 3 次 commit |
-| 4. 安全加固与部署 | 安全头/速率限制/端口绑定 + 性能优化 + 兼容性修复 | 6 次 commit |
-
-> **最新迭代** (2026-06-16)：package-lock.json 锁定依赖版本、TS 5.0 兼容性修复、TS 类型错误修复、Map 导入补充。
-
-## 项目截图
-
-系统运行截图存放于 [screenshots/](screenshots/) 目录，覆盖学生端 H5、管理后台、Unity 大屏、部署运维四大模块。
+- **CSS 星空背景**：N 层 `radial-gradient` 叠加模拟粒子
+- **KenBurns 动画**：封面图 `scale(1.12)` 缓动 8s
+- **卡片切换**：opacity + translateY 淡入淡出，600ms 过渡
+- **人脸扫描**：`navigator.mediaDevices.getUserMedia` + Canvas 缩放到 320x240 → 每 1.5s POST 识别
+- **PersonalMode**：匹配后暂停轮播，展示该用户的专属成果列表，15s 无新人脸退出
 
 ## 部署
 
@@ -156,29 +151,18 @@ Unity 端 25s 心跳 + 5s 自动重连。
 cd backend && mvn clean package -DskipTests
 cd ../admin-web  && npm run build
 cd ../student-h5 && npm run build
-# 拷贝 admin-web/dist 至 docker/nginx/html/admin
-# 拷贝 student-h5/dist 至 docker/nginx/html/student
+# 拷贝 dist 至 docker/nginx/html/
 cd ../docker && docker compose up -d
 ```
 
-访问：
+## 迭代记录
 
-- 管理后台：http://localhost (host 加 `127.0.0.1 admin.exhibition.local`)
-- 学生 H5：http://localhost (host 加 `127.0.0.1 student.exhibition.local`)
-- MinIO 控制台：http://localhost:9001 (minioadmin / minio123456)
+详见 [docs/迭代记录.md](docs/迭代记录.md)。5 个阶段，20 次迭代。
 
-## 开发要点
-
-- **统一响应**：所有接口返回 `R<T> { code, msg, data }`，前端拦截器自动剥壳。
-- **角色守卫**：管理后台路由按 `meta.roles` 自动过滤侧边菜单（教务/校管才能看到用户/标签/大屏控制）。
-- **人脸识别**：特征向量在 Unity 端用 ArcFace 提取，仅上传 1032 字节 base64 到后端，**不传图**。
-- **大屏推送**：管理后台上架/调权/推送 → 后端 WebSocket 广播 → Unity 自动响应。
-- **MinIO**：bucket 默认设置匿名读策略，方便 Unity 直接走 URL 访问；生产环境应改预签名。
-
-## 风险备忘
-
-- 虹软 SDK 需离线授权（机器绑定），Demo 当前默认 Mock 模式。
-- 4K 视频推荐 H.265 + AVPro 插件。
-- WebSocket 心跳保活（25s）+ 5s 自动重连。
-- 大屏建议夜间定时重启（避免长时间运行内存泄漏）。
-- 生产环境务必修改默认密码、Redis 密码、MinIO 密钥。
+| 阶段 | 内容 |
+|------|------|
+| 1. 后端骨架 (2026-06-12) | Spring Boot + 建表 + 用户/文件/资料 CRUD + Docker |
+| 2. 业务闭环 (2026-06-13) | 三级审核流 + 管理后台 + H5 端 + 大屏 API |
+| 3. Unity 动效 (2026-06-14) | URP + DOTween + 轮播/列表/查询 + 人脸识别 |
+| 4. 安全加固 (2026-06-15~16) | 安全头/限流/端口绑定 + Flowable 修复 + TS 兼容 |
+| 5. Vue 大屏 (2026-06-23) | Vue 替代 Unity 大屏 + JNA 人脸桥接 + 一键启停 |

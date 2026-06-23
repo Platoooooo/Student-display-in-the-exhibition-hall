@@ -1,43 +1,44 @@
-# 系统运行截图
+# System Screenshots
 
-> 请将系统全流程运行截图存放于此目录，按模块分类组织。
+> Please place system screenshots here, organized by module.
 
-## 建议截图清单
+## Suggested Screenshot Checklist
 
-### 1. 学生端 H5
-- [ ] 学生登录/注册
-- [ ] 成果资料填写页面
-- [ ] 我的资料列表（草稿/审核中/已发布/驳回）
-- [ ] 人脸录入页面
-- [ ] 资料详情查看
+### 1. Student H5
 
-### 2. 管理后台 Web
-- [ ] 管理员登录
-- [ ] Dashboard 数据概览
-- [ ] 资料库管理（上架/下架/权重调整）
-- [ ] 审核列表（院级审核 / 教务处审核）
-- [ ] 审核通过/驳回操作
-- [ ] 用户管理
-- [ ] 标签管理
-- [ ] 大屏推送控制
+- [ ] Student login / home
+- [ ] Submit achievement form
+- [ ] My profiles list (draft / pending / published / rejected)
+- [ ] Face registration page
+- [ ] Profile detail view
 
-### 3. Unity 大屏端
-- [ ] 默认轮播模式（Carousel）
-- [ ] 列表浏览模式（List）
-- [ ] 关键词搜索模式（Search）
-- [ ] 人脸识别触发个人专属模式（Personal）
-- [ ] 3D 翻转卡片效果
-- [ ] KenBurns + Bloom 后处理效果
-- [ ] 粒子特效转场
-- [ ] 打字机文字动画
+### 2. Admin Panel
 
-### 4. 部署运维
-- [ ] Docker Compose 启动日志
-- [ ] MinIO 文件存储
-- [ ] 数据库表结构
+- [ ] Admin login
+- [ ] Dashboard data overview
+- [ ] Library management (shelf / weight / tags)
+- [ ] Audit list (college audit / department audit)
+- [ ] Audit approve / reject
+- [ ] User management
+- [ ] Tag management
 
-## 命名规范
+### 3. Display Screen (Vue)
+
+- [ ] Default carousel mode
+- [ ] Card transition animation (KenBurns + fade)
+- [ ] Face recognition triggered PersonalMode
+- [ ] PersonalMode: user-specific profile carousel
+- [ ] Camera scanning indicator (bottom right)
+
+### 4. Deployment
+
+- [ ] `start-all.ps1` startup log
+- [ ] MinIO file storage console
+- [ ] Database table structure (MySQL)
+
+## Naming Convention
+
 ```
-{模块}-{功能}-{序号}.png
-例：student-submit-01.png / admin-audit-02.png / unity-carousel-01.png
+{module}-{feature}-{number}.png
+Example: student-submit-01.png / admin-audit-02.png / display-carousel-01.png
 ```
