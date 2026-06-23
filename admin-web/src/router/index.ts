@@ -18,13 +18,14 @@ const router = createRouter({
         { path: 'display', component: () => import('@/views/DisplayControl.vue'), meta: { title: '大屏控制', roles: [4, 5] } },
       ],
     },
+    { path: '/screen', component: () => import('@/views/DisplayScreen.vue'), meta: { title: '大屏展示' } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })
 
 router.beforeEach(async (to) => {
   const u = useUserStore()
-  if (to.path === '/login') return true
+  if (to.path === '/login' || to.path === '/screen') return true
   if (!u.token) return '/login'
   if (!u.info) {
     try { await u.fetchMe() } catch { return '/login' }

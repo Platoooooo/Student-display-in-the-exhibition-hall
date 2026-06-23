@@ -1,12 +1,39 @@
 // 校友成果展览管理后台 — 全局样式
 // 项目采用 Element Plus 组件库，本文件仅做全局微调与辅助工具
 
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/fonts/HarmonyOS_SansSC_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/fonts/HarmonyOS_SansSC_Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  src: url('/fonts/Rajdhani-SemiBold-5.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'DIN';
+  src: url('/fonts/din-bold-2.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   --sidebar-width: 220px;
   --header-height: 56px;
   --color-primary: #00E5FF;
   --color-bg-dark: #1A3A6E;
   --color-bg-page: #f0f2f5;
+  --font-body: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Rajdhani', 'DIN', 'HarmonyOS Sans SC', sans-serif;
 }
 
 * {
@@ -17,8 +44,7 @@
 
 html, body {
   height: 100%;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   color: #303133;
   background: var(--color-bg-page);
