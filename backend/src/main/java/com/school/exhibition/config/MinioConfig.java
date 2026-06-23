@@ -34,11 +34,13 @@ public class MinioConfig {
     @PostConstruct
     public void initBucket() {
         try {
-            MinioClient client = minioClient();
+            MinioClient client = MinioClient.builder()
+                    .endpoint(endpoint)
+                    .credentials(accessKey, secretKey)
+                    .build();
             boolean exists = client.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
             if (!exists) {
                 client.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-                // 设置只读匿名策略，方便大屏直接访问
                 String policy = """
                         {
                           "Version": "2012-10-17",
@@ -52,6 +54,8 @@ public class MinioConfig {
                 client.setBucketPolicy(SetBucketPolicyArgs.builder()
                         .bucket(bucket).config(policy).build());
                 log.info("[MinIO] 已创建 bucket: {}", bucket);
+            } else {
+                log.info("[MinIO] bucket 已存在: {}", bucket);
             }
         } catch (Exception e) {
             log.error("[MinIO] 初始化失败: {}", e.getMessage());

@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: exhibition-backend
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:exhibition_db}?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
@@ -49,6 +51,10 @@ face:
     threshold: ${FACE_THRESHOLD:0.82}
   detect:
     interval: 500
+
+arcface:
+  app-id: ${ARCFACE_APP_ID:}
+  sdk-key: ${ARCFACE_SDK_KEY:}
 
 display:
   max-items: 50

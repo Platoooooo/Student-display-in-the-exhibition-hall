@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 public class JacksonConfig {
 
     @Bean
+    @Primary
     public Jackson2ObjectMapperBuilderCustomizer customizer() {
         DateTimeFormatter dt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter d = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -29,13 +31,5 @@ public class JacksonConfig {
                         .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dt))
                         .addSerializer(LocalDate.class, new LocalDateSerializer(d))
                         .addDeserializer(LocalDate.class, new LocalDateDeserializer(d)));
-    }
-
-    @Bean
-    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilderCustomizer c) {
-        org.springframework.http.converter.json.Jackson2ObjectMapperBuilder b
-                = new org.springframework.http.converter.json.Jackson2ObjectMapperBuilder();
-        c.customize(b);
-        return b.build();
     }
 }
