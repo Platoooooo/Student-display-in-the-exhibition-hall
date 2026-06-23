@@ -8,7 +8,15 @@ namespace Exhibition.FaceRecognition
 {
     public class FaceDetector : MonoBehaviour
     {
-        [Header("配置")]
+        [Header("ArcFace SDK 配置")]
+        [Tooltip("虹软 AppID（4.0 在线激活时用，离线授权可留空）")]
+        public string appId = "";
+        [Tooltip("虹软 SDKKey（4.0 在线激活时用）")]
+        public string sdkKey = "";
+        [Tooltip("勾上则不调真实 SDK,基于图像哈希生成 Mock 特征(用于无 SDK 联调)")]
+        public bool useMock = true;
+
+        [Header("摄像头")]
         public float detectInterval = 0.5f;     // 检测间隔
         public int requestedWidth = 1280;
         public int requestedHeight = 720;
@@ -21,6 +29,16 @@ namespace Exhibition.FaceRecognition
 
         IEnumerator Start()
         {
+            // 1) 初始化 ArcFace（必须在摄像头前）
+            if (!ArcFaceWrapper.IsInitialized)
+            {
+                if (!ArcFaceWrapper.Init(appId, sdkKey, useMock))
+                {
+                    Debug.LogError("[FaceDetector] ArcFace 初始化失败,中止");
+                    yield break;
+                }
+            }
+
             yield return Application.RequestUserAuthorization(UserAuthorization.WebCam);
             if (!Application.HasUserAuthorization(UserAuthorization.WebCam))
             {
