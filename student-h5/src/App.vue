@@ -14,3 +14,21 @@ const route = useRoute()
 const active = ref(0)
 const showTab = computed(() => !['/login'].includes(route.path))
 </script>
+
+<style>
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/fonts/HarmonyOS_SansSC_Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: url('/fonts/HarmonyOS_SansSC_Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+html, body {
+  font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+</style>

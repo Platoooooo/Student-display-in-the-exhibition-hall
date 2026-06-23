@@ -3,23 +3,24 @@
   <div class="wrap">
     <p class="hint">说明：人脸录入后，当你站在校园展览大屏前，将自动切换到你的专属成果展示。</p>
     <van-cell title="上传清晰正脸照" />
-    <van-uploader v-model="files" :max-count="1" :after-read="onRead" />
+    <van-uploader v-model="files" :max-count="1" :after-read="onRead" accept="image/*" capture="user" />
     <div v-if="imgUrl" class="preview">
       <img :src="imgUrl" />
       <van-button block type="primary" :loading="loading" @click="onRegister">提交录入</van-button>
     </div>
-    <p class="tip">⚠️ 当前 Demo 后端使用占位特征向量；正式部署需在前端集成 ArcFace JS-SDK 抽取真实特征。</p>
+    <p class="tip">{{ mockMode ? '⚠️ 当前为 Mock 模式（未配置 ArcFace SDK），请配置后重启后端' : '✅ 真实 ArcFace SDK 就绪' }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { showToast } from 'vant'
-import { apiUpload, apiFaceRegister } from '@/api'
+import { apiUpload, apiFaceRegister, apiFaceExtract } from '@/api'
 
 const files = ref<any[]>([])
 const imgUrl = ref('')
 const loading = ref(false)
+const mockMode = ref(false)
 
 async function onRead(file: any) {
   const f = Array.isArray(file) ? file[0] : file
@@ -27,21 +28,34 @@ async function onRead(file: any) {
   imgUrl.value = r.url
 }
 
-/** 占位：将上传的人脸图URL转 1032 字节的 mock 特征 base64
- *  生产替换为 ArcFace JS-SDK 真特征 */
-function mockFeature(): string {
-  const buf = new Uint8Array(1032)
-  for (let i = 0; i < buf.length; i++) buf[i] = Math.floor(Math.random() * 256)
-  let bin = ''
-  buf.forEach(b => bin += String.fromCharCode(b))
-  return btoa(bin)
+/** 将上传的图片发送到后端，调用 ArcFace SDK 提取真实特征 */
+async function extractRealFeature(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = async () => {
+      const base64 = (reader.result as string).split(',')[1]
+      try {
+        const res = await apiFaceExtract(base64)
+        mockMode.value = !!res.mock
+        if (res.featureBase64) resolve(res.featureBase64)
+        else reject(new Error(res.msg || '未检测到人脸，请用清晰正脸照'))
+      } catch (e: any) { reject(e) }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
 async function onRegister() {
   loading.value = true
   try {
-    await apiFaceRegister({ featureBase64: mockFeature(), faceImageUrl: imgUrl.value })
-    showToast('录入成功')
+    const file = files.value[0]?.file
+    if (!file) { showToast('请先拍照或选择照片'); return }
+    const featureBase64 = await extractRealFeature(file)
+    await apiFaceRegister({ featureBase64, faceImageUrl: imgUrl.value })
+    showToast('录入成功！已提取真实人脸特征')
+  } catch (e: any) {
+    showToast(e.message || '录入失败，请重试')
   } finally { loading.value = false }
 }
 </script>

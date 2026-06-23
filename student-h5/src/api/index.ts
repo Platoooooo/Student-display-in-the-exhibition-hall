@@ -19,6 +19,10 @@ export const apiProfileDelete = (id: number) => http.delete(`/api/profile/${id}`
 export const apiFaceRegister = (data: { featureBase64: string; faceImageUrl?: string }) =>
   http.post('/api/face/register', data)
 export const apiFaceStatus = () => http.get('/api/face/status') as any
+export const apiFaceExtract = (imageBase64: string) =>
+  http.post('/api/face/extract', { imageBase64 }) as any
+export const apiFaceRecognize = (imageBase64: string) =>
+  http.post('/api/face/recognize-image', { imageBase64, deviceId: 'web-display' }) as any
 
 export const apiAuditHistory = (id: number) => http.get(`/api/audit/${id}/history`) as any
 export const apiTagList = () => http.get('/api/tag/list') as any
